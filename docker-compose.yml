@@ -1,0 +1,46 @@
+version: "3"
+services:
+  reverseproxy:
+    #container_name: reverseproxy
+    build: .
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    restart: always
+    depends_on:
+      - website
+      - phpadmin
+
+  website:
+    container_name: php_image
+    build:
+      context: ./
+    volumes:
+      - ./src:/var/www/html
+    #ports:
+    #  - "7001:81"
+    depends_on:
+      - test_sql
+
+  mysql:
+    container_name: test_sql
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: BBO2022_ROOT_PASSWORD
+      MYSQL_DATABASE: PHPDocker_Db
+      MYSQL_USER: BBO2022_USER
+      MYSQL_PASSWORD: BBO2022_PASSWORD
+    ports:
+      - "3306:3306"
+    restart: always
+
+  phpadmin:
+    container_name: phpadmin
+    image: phpmyadmin/phpmyadmin
+    #ports:
+    #  - '8888:80'
+    restart: always
+    environment:
+      PMA_HOST: test_sql
+    depends_on:
+      - test_sql
